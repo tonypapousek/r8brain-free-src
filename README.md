@@ -34,6 +34,12 @@ make clean
 
 Removes `build/` and `dist/`.
 
+### Quality
+
+![48 kHz resampler output](./doc/img/resampler-48000.png)
+
+See [`doc/testing.md`](./doc/testing.md) for the process and more spectrograms.
+
 ### Disclaimers
 
 * The slop in [`resampler/`](./resampler) was generated using various models in the OpenCode harness. 

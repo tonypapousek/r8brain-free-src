@@ -3,6 +3,7 @@
 #include <vector>
 #include <filesystem>
 #include <map>
+#include <algorithm>
 
 #include "../CDSPResampler.h"
 #include "WavFile.h"
@@ -59,6 +60,7 @@ bool processFile(const fs::path& inputPath, const fs::path& outputPath, double t
         if (framesRead < InBufCapacity) {
             // Pad with zeros to flush the internal delay
             inBuffer.resize(InBufCapacity * channels, 0.0);
+            std::fill(inBuffer.begin() + framesRead * channels, inBuffer.end(), 0.0);
             framesRead = InBufCapacity;
         }
 

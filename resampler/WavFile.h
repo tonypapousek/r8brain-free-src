@@ -193,11 +193,11 @@ private:
     void writeHeader(uint32_t dataBytes) {
         file.seekp(0);
         file.write("RIFF", 4);
-        uint32_t chunkSize = 36 + dataBytes;
+        uint32_t subchunk1Size = isFloat ? 18 : 16;
+        uint32_t chunkSize = 20 + subchunk1Size + dataBytes;
         file.write(reinterpret_cast<char*>(&chunkSize), 4);
         file.write("WAVE", 4);
         file.write("fmt ", 4);
-        uint32_t subchunk1Size = 16;
         file.write(reinterpret_cast<char*>(&subchunk1Size), 4);
         uint16_t audioFormat = isFloat ? 3 : 1;
         file.write(reinterpret_cast<char*>(&audioFormat), 2);
@@ -208,6 +208,10 @@ private:
         uint16_t blockAlign = channels * (bitDepth / 8);
         file.write(reinterpret_cast<char*>(&blockAlign), 2);
         file.write(reinterpret_cast<char*>(&bitDepth), 2);
+        if (isFloat) {
+            uint16_t extraSize = 0;
+            file.write(reinterpret_cast<char*>(&extraSize), 2);
+        }
         file.write("data", 4);
         file.write(reinterpret_cast<char*>(&dataBytes), 4);
     }
