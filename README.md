@@ -36,9 +36,9 @@ Removes `build/` and `dist/`.
 
 ### Quality
 
-![192 kHz to 48 kHz resampler output](./doc/img/resampler-192000-48000.webp)
+![192 kHz to 48 kHz resampler output](./resampler/doc/img/resampler-192000-48000.webp)
 
-See [`doc/testing.md`](./doc/testing.md) for the process and more spectrograms.
+See [`resampler/doc/testing.md`](./resampler/doc/testing.md) for the process and more spectrograms.
 
 ### Disclaimers
 

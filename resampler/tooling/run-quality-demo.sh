@@ -1,9 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+RES="$ROOT/resampler"
 WORK="$ROOT/tmp/quality"
-IMG="$ROOT/doc/img"
+IMG="$RES/doc/img"
 
 make -C "$ROOT"
 
@@ -12,7 +13,7 @@ mkdir -p "$WORK/input" "$IMG"
 
 # Generate source sweeps at different sample rates
 for rate in 192000 44100 96000; do
-    "$ROOT/tooling/make-sweep.sh" "$WORK/input/sweep-${rate}.wav" --rate "$rate"
+    "$RES/tooling/make-sweep.sh" "$WORK/input/sweep-${rate}.wav" --rate "$rate"
 done
 
 process() {
@@ -29,7 +30,7 @@ process() {
         -r "$dst" -b float
 
     title="${src} Hz -> ${dst} Hz"
-    "$ROOT/tooling/make-spectrogram.sh" \
+    "$RES/tooling/make-spectrogram.sh" \
         "$output_dir/sweep-${src}.wav" \
         "$IMG/resampler-${src}-${dst}.webp" \
         "$title"
@@ -47,7 +48,7 @@ process 96000 192000
 # Analyze all outputs
 analyze() {
     src=$1 dst=$2
-    "$ROOT/tooling/analyze-quality.py" \
+    "$RES/tooling/analyze-quality.py" \
         "$WORK/resampler-${src}-${dst}/sweep-${src}.wav" \
         --target-rate "$dst" \
         --src-rate "$src"
@@ -59,4 +60,4 @@ analyze 44100 48000
 analyze 44100 96000
 analyze 96000 192000
 
-echo "Wrote quality images to doc/img/"
+echo "Wrote quality images to resampler/doc/img/"
