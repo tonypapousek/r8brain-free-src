@@ -1,13 +1,24 @@
 #!/usr/bin/env sh
 set -eu
 
-if [ "$#" -lt 1 ]; then
-    echo "Usage: $0 <output.wav> [duration_seconds]" >&2
+usage() {
+    echo "Usage: $0 <output.wav> [--rate <sample_rate>] [duration_seconds]" >&2
     exit 1
-fi
+}
+
+if [ "$#" -lt 1 ]; then usage; fi
 
 out=$1
-duration=${2:-8}
+shift
+
+rate=192000
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --rate) rate="$2"; shift 2 ;;
+        *) duration="$1"; shift ;;
+    esac
+done
+duration=${duration:-8}
 
 command -v python3 >/dev/null 2>&1 || {
     echo "python3 is required" >&2
@@ -21,9 +32,10 @@ import numpy as np
 from scipy.io import wavfile
 from scipy.signal import chirp
 
-sr = 192000
+sr = $rate
 dur = $duration
+f_end = int(sr * 0.46875)
 t = np.arange(int(sr * dur)) / sr
-x = 0.5 * chirp(t, f0=20.0, f1=90000.0, t1=dur, method='logarithmic')
+x = 0.5 * chirp(t, f0=20.0, f1=float(f_end), t1=dur, method='logarithmic')
 wavfile.write('$out', sr, x.astype(np.float32))
 "

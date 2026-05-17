@@ -4,29 +4,59 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 WORK="$ROOT/tmp/quality"
 IMG="$ROOT/doc/img"
-SRC="$WORK/input/sweep-192k.wav"
 
 make -C "$ROOT"
 
 rm -rf "$WORK"
 mkdir -p "$WORK/input" "$IMG"
 
-"$ROOT/tooling/make-sweep.sh" "$SRC"
-
-for rate in 44100 48000 96000; do
-    ours_dir="$WORK/resampler-$rate"
-    ours_wav="$ours_dir/sweep-192k.wav"
-
-    mkdir -p "$ours_dir"
-
-    "$ROOT/dist/resampler" -i "$WORK/input" -o "$ours_dir" -r "$rate" -b float
-
-    "$ROOT/tooling/make-spectrogram.sh" "$ours_wav" "$IMG/resampler-$rate.png" "resampler: 192 kHz sweep -> $rate Hz"
+# Generate source sweeps at different sample rates
+for rate in 192000 44100 96000; do
+    "$ROOT/tooling/make-sweep.sh" "$WORK/input/sweep-${rate}.wav" --rate "$rate"
 done
 
-"$ROOT/tooling/analyze-quality.py" \
-    "$WORK/resampler-44100/sweep-192k.wav" \
-    "$WORK/resampler-48000/sweep-192k.wav" \
-    "$WORK/resampler-96000/sweep-192k.wav"
+process() {
+    src=$1 dst=$2
+    input_dir="$WORK/input-${src}"
+    output_dir="$WORK/resampler-${src}-${dst}"
+
+    mkdir -p "$input_dir" "$output_dir"
+    cp "$WORK/input/sweep-${src}.wav" "$input_dir/"
+
+    "$ROOT/dist/resampler" \
+        -i "$input_dir" \
+        -o "$output_dir" \
+        -r "$dst" -b float
+
+    title="${src} Hz -> ${dst} Hz"
+    "$ROOT/tooling/make-spectrogram.sh" \
+        "$output_dir/sweep-${src}.wav" \
+        "$IMG/resampler-${src}-${dst}.webp" \
+        "$title"
+}
+
+# Downsampling (3)
+process 192000 44100
+process 192000 48000
+process 192000 96000
+# Upsampling (3)
+process 44100 48000
+process 44100 96000
+process 96000 192000
+
+# Analyze all outputs
+analyze() {
+    src=$1 dst=$2
+    "$ROOT/tooling/analyze-quality.py" \
+        "$WORK/resampler-${src}-${dst}/sweep-${src}.wav" \
+        --target-rate "$dst" \
+        --src-rate "$src"
+}
+analyze 192000 44100
+analyze 192000 48000
+analyze 192000 96000
+analyze 44100 48000
+analyze 44100 96000
+analyze 96000 192000
 
 echo "Wrote quality images to doc/img/"

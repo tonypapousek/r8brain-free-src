@@ -95,8 +95,8 @@ def check_output(path, target_rate, args):
 def main():
     parser = argparse.ArgumentParser(description="Measure sweep rejection after target Nyquist crossing.")
     parser.add_argument("paths", nargs="+", help="WAV files to analyze")
-    parser.add_argument("--start-freq", type=float, default=20.0)
-    parser.add_argument("--end-freq", type=float, default=90000.0)
+    parser.add_argument("--target-rate", type=int, required=True, help="output sample rate")
+    parser.add_argument("--src-rate", type=int, required=True, help="source sample rate (for sweep end freq)")
     parser.add_argument("--duration", type=float, default=8.0)
     parser.add_argument("--guard", type=float, default=0.25)
     parser.add_argument("--pre-window", type=float, default=1.0)
@@ -107,18 +107,14 @@ def main():
     parser.add_argument("--max-post-peak-dbc", type=float, default=-35.0)
     args = parser.parse_args()
 
+    end_freq = args.src_rate * 0.46875
+    args.start_freq = 20.0
+    args.end_freq = int(end_freq)
+
     ok = True
     for path_arg in args.paths:
         path = Path(path_arg)
-        name = path.name
-        parent = path.parent.name
-        rate_text = parent.rsplit("-", 1)[-1] if "-" in parent else name.rsplit("-", 1)[-1].split(".", 1)[0]
-        try:
-            target_rate = int(rate_text)
-        except ValueError as exc:
-            raise RuntimeError(f"Cannot infer target rate from {path}") from exc
-
-        ok = check_output(path, target_rate, args) and ok
+        ok = check_output(path, args.target_rate, args) and ok
 
     raise SystemExit(0 if ok else 1)
 

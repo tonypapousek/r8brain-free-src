@@ -1,6 +1,6 @@
 # Testing
 
-The quality demo generates a 192 kHz logarithmic sine sweep, resamples it, and renders spectrograms with SoX. The main thing to look for is aliasing: mirrored sweep lines or broad junk above the target Nyquist frequency.
+The quality demo generates logarithmic sine sweeps at 192 kHz, 96 kHz, and 44.1 kHz, resamples them to various output rates, and renders spectrograms. The main thing to look for is aliasing: mirrored sweep lines or broad junk above the target Nyquist frequency.
 
 Requirements:
 
@@ -12,7 +12,7 @@ Run it from the repo root:
 ./tooling/run-quality-demo.sh
 ```
 
-Generated WAV files go under `tmp/quality/`. PNGs are written to `doc/img/`.
+Generated WAV files go under `tmp/quality/`. Spectrograms are written to `doc/img/` as lossless WebP.
 
 The script also runs `tooling/analyze-quality.py`, which measures:
 
@@ -22,16 +22,30 @@ The script also runs `tooling/analyze-quality.py`, which measures:
 
 This catches broken source sweeps and obvious aliasing regressions without relying on the PNGs alone.
 
-## Outputs
+## Downsampling
 
-### 44.1 kHz
+### 192 kHz -> 44.1 kHz
 
-![44.1 kHz spectrogram](./img/resampler-44100.png)
+![192k to 44.1k](./img/resampler-192000-44100.webp)
 
-### 48 kHz
+### 192 kHz -> 48 kHz
 
-![48 kHz spectrogram](./img/resampler-48000.png)
+![192k to 48k](./img/resampler-192000-48000.webp)
 
-### 96 kHz
+### 192 kHz -> 96 kHz
 
-![96 kHz spectrogram](./img/resampler-96000.png)
+![192k to 96k](./img/resampler-192000-96000.webp)
+
+## Upsampling
+
+### 44.1 kHz -> 48 kHz
+
+![44.1k to 48k](./img/resampler-44100-48000.webp)
+
+### 44.1 kHz -> 96 kHz
+
+![44.1k to 96k](./img/resampler-44100-96000.webp)
+
+### 96 kHz -> 192 kHz
+
+![96k to 192k](./img/resampler-96000-192000.webp)
