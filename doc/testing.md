@@ -4,8 +4,7 @@ The quality demo generates a 192 kHz logarithmic sine sweep, resamples it, and r
 
 Requirements:
 
-- `sox`
-- Python with `numpy` and `scipy`
+- Python with `numpy`, `scipy`, and `matplotlib`
 
 Run it from the repo root:
 

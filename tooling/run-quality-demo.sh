@@ -6,11 +6,6 @@ WORK="$ROOT/tmp/quality"
 IMG="$ROOT/doc/img"
 SRC="$WORK/input/sweep-192k.wav"
 
-command -v sox >/dev/null 2>&1 || {
-    echo "sox is required" >&2
-    exit 1
-}
-
 make -C "$ROOT"
 
 rm -rf "$WORK"
